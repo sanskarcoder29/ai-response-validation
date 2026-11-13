@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Local data, downloaded datasets, databases and vector indexes
+data/*
+!data/.gitkeep
+.chroma/
+chroma_db/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
