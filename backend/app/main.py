@@ -1,8 +1,8 @@
+
 """FastAPI entry point for the Milestone 1 input and retrieval modules."""
 
 from fastapi import FastAPI
 
-from backend.app.knowledge_base import search_reference
 from backend.app.schemas import EvaluationSubmission, KnowledgeSearchRequest
 from backend.app.storage import initialize_database, save_submission
 
@@ -33,13 +33,22 @@ def create_submission(submission: EvaluationSubmission) -> dict[str, str]:
     return {
         **saved,
         "status": "accepted",
-        "message": "Submission stored successfully. Automated evaluation is not enabled in Milestone 1.",
+        "message": (
+            "Submission stored successfully. "
+            "Automated evaluation is not enabled in Milestone 1."
+        ),
     }
 
 
 @app.post("/knowledge-base/search")
 def search_knowledge_base(request: KnowledgeSearchRequest) -> dict:
+    """Search the reference knowledge base when this endpoint is requested."""
+
+    # Import SQLite-based knowledge retrieval only when needed.
+    from backend.app.knowledge_base import search_reference
+
     matches = search_reference(request.query, request.top_k)
+
     return {
         "query": request.query,
         "match_count": len(matches),

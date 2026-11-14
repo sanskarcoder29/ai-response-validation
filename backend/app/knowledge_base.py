@@ -1,48 +1,67 @@
-"""ChromaDB helper for storing and retrieving reference evidence."""
 
-from pathlib import Path
 from typing import Any
 
-import chromadb
-
-ROOT_DIR = Path(__file__).resolve().parents[2]
-CHROMA_DIR = ROOT_DIR / "data" / "chroma"
-COLLECTION_NAME = "reference_knowledge"
+from backend.retrieval.retriever import retrieve_for_question
 
 
-def get_collection():
-    """Open a persistent collection; Chroma uses its default local embedding function."""
-    CHROMA_DIR.mkdir(parents=True, exist_ok=True)
-    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-    return client.get_or_create_collection(
-        name=COLLECTION_NAME,
-        metadata={"hnsw:space": "cosine"},
+def search_reference(
+    query: str,
+    top_k: int = 4,
+) -> list[dict[str, Any]]:
+    """
+    Search the local SQLite reference vector database.
+
+    Query embeddings are generated using Gemini.
+    Reference vectors are searched locally using NumPy.
+
+    The returned structure preserves compatibility with
+    the existing FastAPI knowledge-base search endpoint.
+    """
+
+    if not isinstance(query, str) or not query.strip():
+        raise ValueError("Search query must not be empty.")
+
+    if (
+        not isinstance(top_k, int)
+        or isinstance(top_k, bool)
+        or top_k < 1
+    ):
+        raise ValueError("top_k must be a positive integer.")
+
+    retrieved_results = retrieve_for_question(
+        question=query,
+        top_k=top_k,
     )
-
-
-def search_reference(query: str, top_k: int = 4) -> list[dict[str, Any]]:
-    collection = get_collection()
-    count = collection.count()
-    if count == 0:
-        return []
-
-    result = collection.query(
-        query_texts=[query],
-        n_results=min(top_k, count),
-        include=["documents", "metadatas", "distances"],
-    )
-
-    documents = (result.get("documents") or [[]])[0]
-    metadatas = (result.get("metadatas") or [[]])[0]
-    distances = (result.get("distances") or [[]])[0]
 
     matches: list[dict[str, Any]] = []
-    for document, metadata, distance in zip(documents, metadatas, distances):
-        matches.append(
+
+    for result in retrieved_results:
+        similarity_score = float(result["similarity_score"])
+
+        original_metadata = result.get("metadata") or {}
+
+        if not isinstance(original_metadata, dict):
+            original_metadata = {}
+
+        metadata = dict(original_metadata)
+
+        metadata.update(
             {
-                "text": document,
-                "metadata": metadata or {},
-                "distance": distance,
+                "chunk_id": result.get("chunk_id"),
+                "dataset": result.get("dataset"),
+                "record_id": result.get("record_id"),
+                "chunk_index": result.get("chunk_index"),
             }
         )
+
+        match = {
+            "text": result.get("text", ""),
+            "metadata": metadata,
+            "distance": 1.0 - similarity_score,
+            "rank": int(result["rank"]),
+            "similarity_score": similarity_score,
+        }
+
+        matches.append(match)
+
     return matches
