@@ -606,3 +606,16 @@ Dataset attribution, licensing information, and original research references are
 ---
 
 **Project note:** The system is being developed incrementally. The current milestone establishes the input, storage, benchmark-processing, and retrieval foundation required for future evidence-based AI response evaluation.
+
+## Milestone 1 Progress — 16 November 2026
+
+- M1.1: Research and technical understanding documented.
+- M1.2: Initial system architecture documented. Mentor review pending.
+- M1.3: Core Streamlit and FastAPI evaluation input functionality, validation and SQLite submission storage implemented.
+- M1.4: 2,235 reference chunks embedded using Gemini Embedding 2 and indexed in SQLite.
+
+Offline retrieval and context tests passed. Initial live retrieval tests succeeded for TruthfulQA and SQuAD.
+
+Retrieval-result deduplication is implemented. Source-level SQuAD deduplication remains a future improvement.
+
+See docs/MILESTONE_1_REPORT.md and docs/ARCHITECTURE.md for implementation details and limitations.

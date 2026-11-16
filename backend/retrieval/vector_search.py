@@ -303,26 +303,79 @@ def search_similar(
             query_norm,
         )
 
-        # Select the highest similarity scores.
-        best_indices = np.argsort(scores)[::-1][:top_k]
-
+        # Select the highest-scoring unique reference passages.
+        # SQuAD may contain repeated copies of the same source context
+        # for different questions. Collapse exact duplicate passages
+        # while keeping their associated question/answer metadata.
+        best_indices = np.argsort(scores)[::-1]
         results = []
+        seen_content = {}
 
-        for rank, index in enumerate(
-            best_indices,
-            start=1,
-        ):
-
-            result = dict(
-                metadata_records[int(index)]
+        for index in best_indices:
+            source = metadata_records[int(index)]
+            source_metadata = source["metadata"]
+            normalized_text = " ".join(source["text"].split()).casefold()
+            normalized_title = str(
+                source_metadata.get("title", "")
+            ).strip().casefold()
+            dedup_key = (
+                source["dataset"],
+                normalized_title,
+                normalized_text,
             )
 
-            result["rank"] = rank
-            result["similarity_score"] = float(
-                scores[int(index)]
+            if dedup_key in seen_content:
+                existing = results[seen_content[dedup_key]]
+
+                record_id = source["record_id"]
+                if record_id not in existing["matched_record_ids"]:
+                    existing["matched_record_ids"].append(record_id)
+
+                question = source_metadata.get("question")
+                if (
+                    isinstance(question, str)
+                    and question.strip()
+                    and question not in existing["matched_questions"]
+                ):
+                    existing["matched_questions"].append(question)
+
+                answers = source_metadata.get("reference_answers", [])
+                if isinstance(answers, list):
+                    for answer in answers:
+                        if (
+                            isinstance(answer, str)
+                            and answer.strip()
+                            and answer not in existing["matched_reference_answers"]
+                        ):
+                            existing["matched_reference_answers"].append(answer)
+
+                continue
+
+            result = dict(source)
+            result["rank"] = len(results) + 1
+            result["similarity_score"] = float(scores[int(index)])
+            result["matched_record_ids"] = [source["record_id"]]
+
+            question = source_metadata.get("question")
+            result["matched_questions"] = (
+                [question] if isinstance(question, str) and question.strip() else []
             )
 
+            answers = source_metadata.get("reference_answers", [])
+            result["matched_reference_answers"] = (
+                list(dict.fromkeys(
+                    answer for answer in answers
+                    if isinstance(answer, str) and answer.strip()
+                ))
+                if isinstance(answers, list)
+                else []
+            )
+
+            seen_content[dedup_key] = len(results)
             results.append(result)
+
+            if len(results) >= top_k:
+                break
 
         return results
 

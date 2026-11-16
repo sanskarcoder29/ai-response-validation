@@ -3,15 +3,15 @@
 Generate Gemini Embedding 2 vectors for reference chunks.
 
 Features:
-1. Processes up to 50 new chunks per execution.
+1. Processes up to 250 new chunks per execution.
 2. Saves each successful embedding immediately.
-3. Skips already completed chunk IDs.
+3. Skips previously completed chunk IDs.
 4. Resumes safely after interruptions.
 5. Validates embedding dimensions and numerical values.
-6. Handles API errors without automatic repeated requests.
+6. Stops on API errors without automatic retries.
 7. Keeps the Gemini API key private.
-8. Processes both TruthfulQA and SQuAD from the
-   combined reference chunks file.
+8. Processes TruthfulQA and SQuAD from the combined
+   reference chunks file.
 
 Input:
 data/processed/reference_chunks.json
@@ -63,8 +63,8 @@ API_URL = (
 # 2. EMBEDDING SETTINGS
 # --------------------------------------------------
 
-# Conservative batch size to control API usage.
-MAX_NEW_EMBEDDINGS = 50
+# Maximum number of NEW embeddings per execution.
+MAX_NEW_EMBEDDINGS = 250
 
 EXPECTED_DIMENSIONS = 3072
 
@@ -83,7 +83,7 @@ def load_completed_ids() -> set[str]:
     Read the JSONL output file and identify successfully
     saved embeddings.
 
-    Existing valid records are never regenerated.
+    Previously completed valid records are skipped.
     """
 
     completed_ids: set[str] = set()
@@ -143,8 +143,6 @@ def prepare_document(
 ) -> str:
     """
     Format a reference chunk for Gemini Embedding 2.
-
-    Preserves the reference title and text.
     """
 
     metadata = chunk.get("metadata", {})
@@ -165,10 +163,10 @@ def generate_embedding(
     document_text: str,
 ) -> list[float]:
     """
-    Send one document to Gemini and retrieve its vector.
+    Generate one embedding using Gemini Embedding 2.
 
-    No automatic retry is performed. This prevents
-    unexpected repeated requests if an API limit occurs.
+    No automatic retry is performed. This avoids
+    unexpected repeated API requests after an error.
     """
 
     payload = {
@@ -196,8 +194,7 @@ def generate_embedding(
     if response.status_code == 429:
         raise RuntimeError(
             "Gemini quota or rate limit reached. "
-            "Stop processing and check Google AI Studio "
-            "before making more requests. "
+            "Stop processing and check Google AI Studio. "
             "Previously saved embeddings are safe."
         )
 
@@ -261,8 +258,7 @@ def save_embedding(
     """
     Append one completed embedding to the JSONL file.
 
-    Each record is saved separately so completed work
-    survives interruptions.
+    Every successful embedding is saved immediately.
     """
 
     record = {
@@ -347,7 +343,7 @@ def main() -> int:
 
         completed_ids = load_completed_ids()
 
-        # Select chunks that are not already embedded.
+        # Select chunks that have not been embedded.
         pending_chunks = [
             chunk
             for chunk in chunks
@@ -361,7 +357,7 @@ def main() -> int:
             )
         ]
 
-        # Select at most 50 new embeddings.
+        # Select at most 250 new embeddings.
         selected_chunks = pending_chunks[
             :MAX_NEW_EMBEDDINGS
         ]
