@@ -1,8 +1,8 @@
 # System Architecture — AI Response Validation System
 
-**Project:** Development of AI Response Validation System with Hallucination Detection Assistance  
-**Milestone:** 1 — Foundation and Evaluation Understanding  
-**Last updated:** 16 November 2026  
+**Project:** Development of AI Response Validation System with Hallucination Detection Assistance
+**Milestone:** 1 — Foundation and Evaluation Understanding
+**Last updated:** 16 November 2026
 **Architecture status:** The input and storage foundation and initial reference retrieval workflow are implemented. Initial live retrieval examples have been tested against TruthfulQA and SQuAD. Automated response evaluation, judge-agent orchestration, scoring, and verdict generation remain planned for subsequent milestones.
 
 ---
@@ -103,7 +103,7 @@ This proposed architecture will be implemented incrementally after the input, re
 
 ### 3.1 User interface
 
-**Technology:** Streamlit  
+**Technology:** Streamlit
 **Current file:** `frontend/streamlit_app.py`
 
 Responsibilities:
@@ -119,7 +119,7 @@ The current source-material input is a text field. PDF/DOCX upload and document 
 
 ### 3.2 Backend and API layer
 
-**Technology:** FastAPI  
+**Technology:** FastAPI
 **Current file:** `backend/app/main.py`
 
 Responsibilities:
@@ -133,20 +133,20 @@ Responsibilities:
 
 Implemented endpoints:
 
-**GET `/health`**  
+**GET `/health`**
 Checks the backend service status.
 
-**POST `/submissions`**  
+**POST `/submissions`**
 Accepts and validates a user submission, saves it in SQLite, and returns an HTTP 201 response after successful storage.
 
-**POST `/knowledge-base/search`**  
+**POST `/knowledge-base/search`**
 Accepts a search query and a requested number of results. It retrieves candidate reference passages using the knowledge-base module.
 
 FastAPI also provides interactive API documentation through `/docs`.
 
 ### 3.3 Input validation module
 
-**Technology:** Pydantic  
+**Technology:** Pydantic
 **Current file:** `backend/app/schemas.py`
 
 Responsibilities:
@@ -159,8 +159,8 @@ Responsibilities:
 
 ### 3.4 Submission storage
 
-**Technology:** SQLite  
-**Current file:** `backend/app/storage.py`  
+**Technology:** SQLite
+**Current file:** `backend/app/storage.py`
 **Database file:** `data/submissions.db`
 
 Responsibilities:
@@ -193,7 +193,7 @@ The current acquisition process uses the Hugging Face Dataset Viewer API and Pyt
 
 ### 3.6 Chunking module
 
-**Current file:** `backend/scripts/chunk_reference_data.py`  
+**Current file:** `backend/scripts/chunk_reference_data.py`
 **Output:** `data/processed/reference_chunks.json`
 
 Responsibilities:
@@ -215,8 +215,8 @@ The combined processed dataset contains 2,235 chunks: 892 TruthfulQA chunks and 
 
 ### 3.7 Embedding module
 
-**Technology:** Google Gemini Embedding 2  
-**Current reference generator:** `backend/scripts/generate_embeddings.py`  
+**Technology:** Google Gemini Embedding 2
+**Current reference generator:** `backend/scripts/generate_embeddings.py`
 **Current query embedder:** `backend/retrieval/query_embedder.py`
 
 Responsibilities:
@@ -248,8 +248,8 @@ A query embedding requires an external Gemini API request. API credentials are l
 
 ### 3.8 Vector storage and indexing
 
-**Technology:** SQLite  
-**Current builder:** `backend/scripts/build_vector_index.py`  
+**Technology:** SQLite
+**Current builder:** `backend/scripts/build_vector_index.py`
 **Current database:** `data/processed/reference_vectors.db`
 
 Responsibilities:
@@ -271,7 +271,7 @@ The active vector implementation uses SQLite rather than ChromaDB.
 
 ### 3.9 Similarity search module
 
-**Technology:** NumPy  
+**Technology:** NumPy
 **Current module:** `backend/retrieval/vector_search.py`
 
 Responsibilities:

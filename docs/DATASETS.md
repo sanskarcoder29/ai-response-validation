@@ -1,7 +1,7 @@
 # Benchmark Datasets and Attribution
 
-**Project:** Development of AI Response Validation System with Hallucination Detection Assistance  
-**Milestone:** 1 — Foundation and Evaluation Understanding  
+**Project:** Development of AI Response Validation System with Hallucination Detection Assistance
+**Milestone:** 1 — Foundation and Evaluation Understanding
 **Last updated:** 16 November 2026
 
 ---
@@ -65,8 +65,8 @@ The Hugging Face dataset card declares the Apache License 2.0 (`Apache-2.0`). Th
 
 **Original research paper:**
 
-Lin, S., Hilton, J., and Evans, O. (2021).  
-“TruthfulQA: Measuring How Models Mimic Human Falsehoods.”  
+Lin, S., Hilton, J., and Evans, O. (2021).
+“TruthfulQA: Measuring How Models Mimic Human Falsehoods.”
 https://arxiv.org/abs/2109.07958
 
 ---
@@ -121,9 +121,9 @@ The dataset licence is separate from the source-code licence of this project. Be
 
 **Original research paper:**
 
-Rajpurkar, P., Zhang, J., Lopyrev, K., and Liang, P. (2016).  
-“SQuAD: 100,000+ Questions for Machine Comprehension of Text.”  
-Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing.  
+Rajpurkar, P., Zhang, J., Lopyrev, K., and Liang, P. (2016).
+“SQuAD: 100,000+ Questions for Machine Comprehension of Text.”
+Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing.
 https://aclanthology.org/D16-1264/
 
 ---

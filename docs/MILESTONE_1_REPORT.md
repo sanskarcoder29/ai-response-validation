@@ -1,8 +1,8 @@
 # Milestone 1 — Foundation and Evaluation Understanding
 
-**Project:** Development of AI Response Validation System with Hallucination Detection Assistance  
-**Milestone:** 1 — Foundation and Evaluation Understanding  
-**Last updated:** 16 November 2026  
+**Project:** Development of AI Response Validation System with Hallucination Detection Assistance
+**Milestone:** 1 — Foundation and Evaluation Understanding
+**Last updated:** 16 November 2026
 **Status:** M1.1 research documentation and M1.2 initial architecture documentation are prepared. The M1.3 core evaluation input and storage module is implemented. The M1.4 reference knowledge base has been populated with embeddings and indexed locally, with initial offline and live retrieval validation completed. Mentor review, broader retrieval-quality evaluation, and final milestone acceptance remain pending.
 
 ---
@@ -164,13 +164,13 @@ The current implementation provides the initial input and submission-storage fun
 
 ### 6.2 API endpoints
 
-**GET `/health`**  
+**GET `/health`**
 Checks whether the backend service is running.
 
-**POST `/submissions`**  
+**POST `/submissions`**
 Validates and stores an evaluation submission. Successful submission storage was previously verified with an HTTP 201 response.
 
-**POST `/knowledge-base/search`**  
+**POST `/knowledge-base/search`**
 Accepts a search query and retrieves candidate reference passages from the local reference vector database. Retrieved passages are candidate evidence and still require evaluation.
 
 ### 6.3 Current boundary and limitations
